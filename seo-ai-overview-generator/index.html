@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO & AI Overview Prompt Generator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Marked.js for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['Space Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(125% 125% at 50% 10%, #0b0f19 40%, #1e1b4b 100%);
+            min-height: 100vh;
+        }
+        /* Glassmorphism utility */
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card {
+            background: rgba(31, 41, 55, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.3);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.6);
+        }
+    </style>
+</head>
+<body class="text-slate-100 antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-4 py-8 lg:py-12">
+        
+        <!-- Header -->
+        <header class="text-center mb-10 relative">
+            <div class="absolute inset-x-0 -top-10 -z-10 flex justify-center">
+                <div class="h-44 w-80 bg-indigo-500/20 rounded-full blur-[100px]"></div>
+                <div class="h-44 w-80 bg-purple-500/20 rounded-full blur-[100px] -ml-20"></div>
+            </div>
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-card border border-indigo-500/30 text-indigo-300 text-xs font-semibold mb-4 tracking-wide">
+                <i class="fa-solid fa-wand-magic-sparkles text-indigo-400"></i> AI-READY PROMPT ARCHITECT
+            </div>
+            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-purple-400">
+                SEO & AI Overview Prompt Generator
+            </h1>
+            <p class="mt-3 text-slate-400 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
+                Rancang dan formulasikan instruksi penulisan tingkat lanjut yang dioptimalkan untuk sistem pencarian AI modern seperti Google SGE, Perplexity, dan ChatGPT Retrieval.
+                <span class="block mt-2 text-xs md:text-sm text-indigo-400 font-semibold tracking-wider uppercase">
+                    <i class="fa-solid fa-circle-user text-indigo-500 mr-1"></i> Created By Wahyudi
+                </span>
+            </p>
+        </header>
+
+        <!-- Main Dashboard -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Left Side: Inputs & Settings -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="glass-panel p-6 md:p-8 rounded-2xl shadow-xl space-y-6 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-indigo-500 to-purple-600"></div>
+                    
+                    <h2 class="text-xl font-bold flex items-center gap-2 text-white">
+                        <i class="fa-solid fa-sliders text-indigo-400 text-lg"></i>
+                        Parameter Artikel
+                    </h2>
+
+                    <!-- GitHub Token / API Key Config -->
+                    <div class="space-y-2 p-4 bg-slate-950/60 rounded-xl border border-slate-900">
+                        <label for="api-key-input" class="block text-xs font-semibold text-slate-300 flex justify-between">
+                            <span>Gemini API Key (Opsional)</span>
+                            <span class="text-[10px] text-indigo-400 font-medium">Disimpan di Browser</span>
+                        </label>
+                        <div class="relative">
+                            <input 
+                                type="password" 
+                                id="api-key-input" 
+                                class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-3 pr-10 py-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-transparent text-xs"
+                                placeholder="Masukkan API Key Gemini Anda..."
+                                oninput="saveApiKey()"
+                            >
+                            <button type="button" onclick="toggleApiKeyVisibility()" class="absolute right-2.5 top-2.5 text-slate-500 hover:text-slate-300">
+                                <i id="api-key-toggle-icon" class="fa-solid fa-eye-slash text-xs"></i>
+                            </button>
+                        </div>
+                        <p class="text-[10px] text-slate-500">Kunci API ini digunakan langsung oleh browser Anda untuk simulasi Playground tanpa perantara server.</p>
+                    </div>
+                    
+                    <!-- Topic Input -->
+                    <div class="space-y-2">
+                        <label for="topic-input" class="block text-sm font-semibold text-slate-300 flex justify-between">
+                            <span>Topik Utama Artikel</span>
+                            <span class="text-xs text-slate-500" id="char-counter">0 karakter</span>
+                        </label>
+                        <div class="relative">
+                            <textarea 
+                                id="topic-input" 
+                                rows="4" 
+                                class="w-full bg-slate-950/70 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition resize-none text-sm md:text-base"
+                                placeholder="Isi Topik Anda (misal: Strategi Digital Marketing untuk Pemula, Cara Budidaya Anggrek Bulan, dsb...)"
+                                oninput="updateGenerator()"
+                            ></textarea>
+                            <div class="absolute bottom-3 right-3 text-slate-600 pointer-events-none">
+                                <i class="fa-solid fa-pen-nib"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paragraph Selection Buttons -->
+                    <div class="space-y-3">
+                        <label class="block text-sm font-semibold text-slate-300">
+                            Jumlah Paragraf yang Diinginkan
+                        </label>
+                        <div class="grid grid-cols-5 gap-2" id="paragraph-selector">
+                            <button onclick="selectParagraphs(3, this)" class="p-2.5 rounded-xl glass-card border border-slate-800 hover:border-indigo-500/50 hover:bg-indigo-950/20 font-bold text-sm text-slate-300 transition duration-200 focus:outline-none">3</button>
+                            <button onclick="selectParagraphs(5, this)" class="p-2.5 rounded-xl glass-card border border-indigo-500/50 bg-indigo-600/20 border-indigo-500 font-bold text-sm text-white transition duration-200 focus:outline-none ring-2 ring-indigo-500/20">5</button>
+                            <button onclick="selectParagraphs(8, this)" class="p-2.5 rounded-xl glass-card border border-slate-800 hover:border-indigo-500/50 hover:bg-indigo-950/20 font-bold text-sm text-slate-300 transition duration-200 focus:outline-none">8</button>
+                            <button onclick="selectParagraphs(10, this)" class="p-2.5 rounded-xl glass-card border border-slate-800 hover:border-indigo-500/50 hover:bg-indigo-950/20 font-bold text-sm text-slate-300 transition duration-200 focus:outline-none">10</button>
+                            <button onclick="toggleCustomParagraph(this)" class="p-2.5 rounded-xl glass-card border border-slate-800 hover:border-indigo-500/50 hover:bg-indigo-950/20 font-bold text-sm text-slate-300 transition duration-200 focus:outline-none">Lainnya</button>
+                        </div>
+                        
+                        <!-- Custom Paragraph Input (Hidden by default) -->
+                        <div id="custom-paragraph-wrapper" class="hidden transition-all duration-300 mt-2">
+                            <div class="relative">
+                                <input 
+                                    type="number" 
+                                    id="custom-paragraph-input" 
+                                    min="1" 
+                                    max="50" 
+                                    value="6"
+                                    class="w-full bg-slate-950/70 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                                    placeholder="Masukkan jumlah paragraf (cth: 12)"
+                                    oninput="updateCustomParagraph()"
+                                >
+                                <span class="absolute right-3 top-2.5 text-xs text-slate-500">paragraf</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Output Format Selector (NEW) -->
+                    <div class="space-y-3">
+                        <label class="block text-sm font-semibold text-slate-300">
+                            Format Output Artikel
+                        </label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button 
+                                id="format-btn-html" 
+                                onclick="selectOutputFormat('html')" 
+                                class="p-3 rounded-xl border border-indigo-500/50 bg-indigo-600/20 font-bold text-sm text-white flex items-center justify-center gap-2 transition duration-200 focus:outline-none"
+                            >
+                                <i class="fa-solid fa-code text-indigo-400"></i> HTML (.html)
+                            </button>
+                            <button 
+                                id="format-btn-markdown" 
+                                onclick="selectOutputFormat('markdown')" 
+                                class="p-3 rounded-xl border border-slate-800 hover:border-indigo-500/30 font-bold text-sm text-slate-300 flex items-center justify-center gap-2 transition duration-200 focus:outline-none"
+                            >
+                                <i class="fa-brands fa-markdown text-slate-400"></i> Markdown (.md)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Hidden System Guidelines Toggle -->
+                    <div class="border-t border-slate-800/80 pt-5">
+                        <button onclick="toggleGuidelines()" class="w-full flex items-center justify-between text-slate-400 hover:text-white transition duration-150 text-xs font-semibold focus:outline-none">
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-emerald-500"></i> LIHAT STANDAR SEO MODERN (AKTIF)</span>
+                            <i id="guidelines-chevron" class="fa-solid fa-chevron-down transition-transform duration-200"></i>
+                        </button>
+                        
+                        <div id="guidelines-preview" class="hidden mt-3 max-h-48 overflow-y-auto space-y-2 p-3 bg-slate-950/50 rounded-xl border border-slate-900 text-xs text-slate-400">
+                            <p class="font-bold text-slate-300">Standar Penulisan & Optimasi:</p>
+                            <ul class="list-disc pl-4 space-y-1.5">
+                                <li><strong>No-Filler Intro:</strong> Larangan keras jargon klasik AI "Di era digital ini...".</li>
+                                <li><strong>AI-Retrieve Friendly:</strong> Struktur info ringkas ramah sitasi instan.</li>
+                                <li><strong>Semantic Optimization:</strong> Wajib menyematkan entitas nyata (orang, produk, merek).</li>
+                                <li><strong>Snippet Optimized:</strong> Sub-heading (H2) berbasis pertanyaan independen.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Block -->
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-start gap-4">
+                    <div class="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-xl shrink-0">
+                        <i class="fa-solid fa-circle-info text-xl"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <h4 class="text-sm font-semibold text-slate-200">Cara Penggunaan</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Ketik topik artikel yang ingin Anda bahas, pilih target jumlah paragraf, dan tentukan format output. Salin prompt yang dihasilkan secara otomatis, atau uji drafnya langsung menggunakan Playground AI.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Prompt Generated Output & Live Playground -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- Placeholder / Empty State (Shown when no topic is typed) -->
+                <div id="prompt-card-empty" class="glass-panel rounded-2xl shadow-xl p-8 md:p-12 text-center space-y-6 flex flex-col items-center justify-center min-h-[460px] relative overflow-hidden transition-all duration-300">
+                    <div class="absolute inset-0 -z-10 bg-gradient-to-b from-indigo-500/5 to-transparent"></div>
+                    <div class="w-16 h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 text-2xl border border-indigo-500/20 animate-bounce">
+                        <i class="fa-solid fa-keyboard"></i>
+                    </div>
+                    <div class="max-w-md space-y-2">
+                        <h3 class="text-lg font-bold text-white tracking-wide">Menunggu Input Topik</h3>
+                        <p class="text-sm text-slate-400 leading-relaxed">
+                            Silakan ketik atau isi topik artikel Anda di panel sebelah kiri. Prompt SEO &amp; AI Overview kustom yang sangat detail akan segera dirangkum secara otomatis di sini.
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 justify-center">
+                        <span class="px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800/80 text-[10px] text-slate-500 font-mono tracking-wider">Semantic SEO Ready</span>
+                        <span class="px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800/80 text-[10px] text-slate-500 font-mono tracking-wider">No AI-Filler Intro</span>
+                        <span class="px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800/80 text-[10px] text-slate-500 font-mono tracking-wider">Snippet Optimised</span>
+                    </div>
+                </div>
+
+                <!-- Active Prompt Result Card (Hidden by default, shown when topic is typed) -->
+                <div id="prompt-card-active" class="hidden glass-panel rounded-2xl shadow-xl overflow-hidden flex flex-col transition-all duration-300">
+                    
+                    <!-- Tabs -->
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800/80 bg-slate-950/40">
+                        <div class="flex gap-4">
+                            <button id="tab-prompt" onclick="switchTab('prompt')" class="text-sm font-bold border-b-2 border-indigo-500 pb-2 px-1 text-white flex items-center gap-2 focus:outline-none">
+                                <i class="fa-solid fa-code text-indigo-400"></i> Hasil Prompt Anda
+                            </button>
+                            <button id="tab-playground" onclick="switchTab('playground')" class="text-sm font-semibold text-slate-400 hover:text-white pb-2 px-1 flex items-center gap-2 focus:outline-none">
+                                <i class="fa-solid fa-microchip text-slate-400" id="playground-icon"></i> AI Playground <span class="bg-indigo-500/20 text-indigo-400 text-[9px] px-1.5 py-0.5 rounded-full font-bold">LIVE</span>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center gap-2">
+                            <!-- Copy Button -->
+                            <button 
+                                id="copy-btn" 
+                                onclick="copyPromptToClipboard()" 
+                                class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium text-xs flex items-center gap-1.5 shadow-lg shadow-indigo-500/10 transition"
+                            >
+                                <i class="fa-solid fa-copy"></i> Copy Prompt
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Prompt Text Content -->
+                    <div id="prompt-panel" class="p-6 space-y-4">
+                        <div class="relative">
+                            <pre id="prompt-output" class="bg-slate-950 border border-slate-900 rounded-xl p-4 text-xs md:text-sm font-mono text-slate-300 overflow-x-auto whitespace-pre-wrap max-h-[460px] min-h-[350px] leading-relaxed select-all scrollbar-thin">
+                            <!-- Prompt will be populated here -->
+                            </pre>
+                            <div class="absolute top-3 right-3 flex space-x-1.5">
+                                <span class="flex h-2 w-2 relative">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-slate-500 italic text-center">
+                            *Prompt di atas diperbarui secara otomatis setiap kali Anda memodifikasi topik, parameter paragraf, atau tipe format keluaran.
+                        </p>
+                    </div>
+
+                    <!-- Playground Panel (Hidden by default) -->
+                    <div id="playground-panel" class="hidden p-6 space-y-6">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 p-4 bg-slate-950/60 rounded-xl border border-slate-800">
+                            <div class="space-y-1">
+                                <h3 class="text-sm font-semibold text-slate-200">Gunakan Gemini Engine</h3>
+                                <p class="text-xs text-slate-400">Hasilkan draf artikel SEO instan sesuai format prompt di atas.</p>
+                            </div>
+                            <button 
+                                id="ai-generate-btn" 
+                                onclick="generateArticleWithAI()" 
+                                class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 active:scale-95 text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20 transition-all"
+                            >
+                                <i class="fa-solid fa-sparkles"></i> Buat Artikel Sekarang
+                            </button>
+                        </div>
+
+                        <!-- Running / Loading State -->
+                        <div id="ai-loading" class="hidden py-12 text-center space-y-4">
+                            <div class="inline-block relative">
+                                <div class="w-16 h-16 rounded-full border-4 border-indigo-500/10 border-t-indigo-500 animate-spin"></div>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <i class="fa-solid fa-brain text-indigo-400 animate-pulse"></i>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <p class="text-sm font-semibold text-slate-200">AI sedang menulis artikel Anda...</p>
+                                <p class="text-xs text-slate-400 animate-pulse">Menerapkan Semantic SEO, struktur snippet, & optimasi LSI</p>
+                            </div>
+                        </div>
+
+                        <!-- Result Live Preview -->
+                        <div id="ai-result-wrapper" class="hidden space-y-4">
+                            <div class="flex items-center justify-between">
+                                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                    <i class="fa-solid fa-align-left text-indigo-400"></i> Hasil Generasi (Preview HTML & Code)
+                                </h4>
+                                <div class="flex gap-2">
+                                    <button onclick="togglePreviewMode('visual')" id="btn-preview-visual" class="px-3 py-1 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] font-bold focus:outline-none">
+                                        Visual
+                                    </button>
+                                    <button onclick="togglePreviewMode('source')" id="btn-preview-source" class="px-3 py-1 rounded-md bg-slate-950 text-slate-400 border border-slate-800 text-[10px] font-bold focus:outline-none">
+                                        Kode Sumber
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Visual Frame Output -->
+                            <div id="preview-visual" class="bg-white text-slate-800 rounded-xl p-5 md:p-8 overflow-y-auto max-h-[400px] shadow-inner prose prose-slate">
+                                <!-- Article Preview HTML rendered dynamically -->
+                            </div>
+
+                            <!-- Source Code Output -->
+                            <div id="preview-source" class="hidden relative">
+                                <pre id="source-code-output" class="bg-slate-950 border border-slate-900 rounded-xl p-4 text-xs font-mono text-indigo-400 overflow-x-auto max-h-[400px] whitespace-pre-wrap select-all">
+                                </pre>
+                                <button onclick="copySourceCode()" class="absolute top-3 right-3 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 p-1.5 rounded-md text-xs hover:text-white transition">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grounding and Source attributions if any -->
+                <div id="grounding-info" class="hidden glass-panel p-4 rounded-xl border border-slate-800">
+                    <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1">
+                        <i class="fa-solid fa-globe text-emerald-400"></i> Referensi Pencarian (Grounding Sources)
+                    </h5>
+                    <div id="grounding-links" class="flex flex-wrap gap-2">
+                        <!-- Links will be injected here -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-slate-500 text-xs border-t border-slate-900/60 pt-6">
+            <p>© 2026 SEO & AI Overview Prompt Generator. Dibuat untuk optimasi pencarian masa depan.</p>
+        </footer>
+    </div>
+
+    <!-- Script Block -->
+    <script>
+        // App State
+        let currentParagraphs = 5;
+        let isCustomParagraph = false;
+        let activeTab = 'prompt';
+        let previewMode = 'visual'; // 'visual' or 'source'
+        let outputFormat = 'html'; // 'html' or 'markdown'
+        
+        // Load API Key from Local Storage if any
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedKey = localStorage.getItem('user_gemini_api_key');
+            if (savedKey) {
+                document.getElementById('api-key-input').value = savedKey;
+            }
+        });
+
+        const defaultApiKey = ""; // Fallback API Key provided by system
+
+        // Global variables for AI response storage
+        let lastGeneratedArticle = "";
+
+        // Base prompt template without output instruction block
+        const promptTemplateBase = `Anda adalah penulis artikel SEO modern yang memahami:
+- Google Search
+- AI Overview
+- Semantic SEO
+- Entity SEO
+- Perplexity optimization
+- ChatGPT retrieval optimization
+
+Tugas Anda adalah membuat artikel yang:
+- mudah dipahami AI,
+- mudah dikutip AI,
+- ranking di Google,
+- natural dibaca manusia,
+- tidak terasa seperti artikel AI spam.
+
+ATURAN PENULISAN:
+
+1. Paragraf pertama HARUS langsung menjawab intent utama.
+2. Jangan gunakan pembukaan filler seperti:
+   - "Di era digital..."
+   - "Seiring perkembangan zaman..."
+3. Gunakan heading H2 berbasis pertanyaan.
+4. Setiap heading harus bisa berdiri sendiri sebagai jawaban.
+5. Gunakan bahasa natural dan informatif.
+6. Tambahkan entity relevan:
+   - nama produk
+   - teknologi
+   - orang
+   - perusahaan
+   - lokasi
+7. Hindari keyword stuffing.
+8. Gunakan format snippet-friendly.
+9. Tambahkan FAQ.
+10. Buat artikel mudah dipahami AI retriever.
+11. Jangan terlalu promosi.
+12. Gunakan gaya semi-formal.
+13. Tulis fakta konkret dan jelas.
+14. Hindari kalimat berputar-putar.
+15. Buat artikel original dan bernilai.
+
+STRUKTUR ARTIKEL:
+
+- H1
+- Intro singkat langsung menjawab intent
+- Ringkasan poin penting
+- H2 Apa itu...
+- H2 Cara kerja...
+- H2 Kelebihan...
+- H2 Kekurangan...
+- H2 Perbandingan...
+- H2 Tips...
+- H2 FAQ
+- Kesimpulan
+
+FORMAT TAMBAHAN:
+
+- Gunakan bullet point
+- Gunakan tabel jika perlu
+- Buat paragraf pendek
+- Maksimal 3 kalimat per paragraf
+- Gunakan transisi natural
+
+[DYNAMICS_OUTPUT]
+
+TOPIK:
+[ISI TOPIK] 
+Sebanyak [paragraf] paragraf`;
+
+        // Load initially
+        window.onload = function() {
+            updateGenerator();
+        };
+
+        // API Key Management UI Actions
+        function saveApiKey() {
+            const keyVal = document.getElementById('api-key-input').value.trim();
+            if (keyVal) {
+                localStorage.setItem('user_gemini_api_key', keyVal);
+            } else {
+                localStorage.removeItem('user_gemini_api_key');
+            }
+        }
+
+        function toggleApiKeyVisibility() {
+            const input = document.getElementById('api-key-input');
+            const icon = document.getElementById('api-key-toggle-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye text-xs';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye-slash text-xs';
+            }
+        }
+
+        // Output format selector handler
+        function selectOutputFormat(format) {
+            outputFormat = format;
+            const btnHtml = document.getElementById('format-btn-html');
+            const btnMarkdown = document.getElementById('format-btn-markdown');
+            
+            if (format === 'html') {
+                btnHtml.className = "p-3 rounded-xl border border-indigo-500/50 bg-indigo-600/20 font-bold text-sm text-white flex items-center justify-center gap-2 transition duration-200 focus:outline-none";
+                btnMarkdown.className = "p-3 rounded-xl border border-slate-800 hover:border-indigo-500/30 font-bold text-sm text-slate-300 flex items-center justify-center gap-2 transition duration-200 focus:outline-none";
+            } else {
+                btnMarkdown.className = "p-3 rounded-xl border border-indigo-500/50 bg-indigo-600/20 font-bold text-sm text-white flex items-center justify-center gap-2 transition duration-200 focus:outline-none";
+                btnHtml.className = "p-3 rounded-xl border border-slate-800 hover:border-indigo-500/30 font-bold text-sm text-slate-300 flex items-center justify-center gap-2 transition duration-200 focus:outline-none";
+            }
+            updateGenerator();
+        }
+
+        // UI Helpers
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `flex items-center gap-2 px-4 py-3 rounded-xl shadow-2xl text-xs md:text-sm border transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto`;
+            
+            if (type === 'success') {
+                toast.className += ' bg-slate-900 border-emerald-500/30 text-emerald-400';
+                toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500"></i> ${message}`;
+            } else if (type === 'error') {
+                toast.className += ' bg-slate-900 border-rose-500/30 text-rose-400';
+                toast.innerHTML = `<i class="fa-solid fa-circle-exclamation text-rose-500"></i> ${message}`;
+            } else {
+                toast.className += ' bg-slate-900 border-indigo-500/30 text-indigo-400';
+                toast.innerHTML = `<i class="fa-solid fa-info text-indigo-500"></i> ${message}`;
+            }
+
+            container.appendChild(toast);
+            
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 50);
+
+            // Animate out and remove
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-[-10px]');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        function toggleGuidelines() {
+            const preview = document.getElementById('guidelines-preview');
+            const chevron = document.getElementById('guidelines-chevron');
+            if (preview.classList.contains('hidden')) {
+                preview.classList.remove('hidden');
+                chevron.classList.add('rotate-180');
+            } else {
+                preview.classList.add('hidden');
+                chevron.classList.remove('rotate-180');
+            }
+        }
+
+        // Handle paragraph buttons selection
+        function selectParagraphs(count, element) {
+            currentParagraphs = count;
+            isCustomParagraph = false;
+            
+            // Hide custom input container
+            document.getElementById('custom-paragraph-wrapper').classList.add('hidden');
+            
+            // Highlight styling
+            resetSelectionButtons();
+            element.className = "p-2.5 rounded-xl glass-card border border-indigo-500/50 bg-indigo-600/20 border-indigo-500 font-bold text-sm text-white transition duration-200 focus:outline-none ring-2 ring-indigo-500/20";
+            
+            updateGenerator();
+        }
+
+        function toggleCustomParagraph(element) {
+            isCustomParagraph = true;
+            document.getElementById('custom-paragraph-wrapper').classList.remove('hidden');
+            
+            resetSelectionButtons();
+            element.className = "p-2.5 rounded-xl glass-card border border-indigo-500/50 bg-indigo-600/20 border-indigo-500 font-bold text-sm text-white transition duration-200 focus:outline-none ring-2 ring-indigo-500/20";
+            
+            // Trigger focus
+            document.getElementById('custom-paragraph-input').focus();
+            updateCustomParagraph();
+        }
+
+        function updateCustomParagraph() {
+            const inputVal = parseInt(document.getElementById('custom-paragraph-input').value) || 5;
+            currentParagraphs = inputVal;
+            updateGenerator();
+        }
+
+        function resetSelectionButtons() {
+            const container = document.getElementById('paragraph-selector');
+            const buttons = container.getElementsByTagName('button');
+            for (let btn of buttons) {
+                btn.className = "p-2.5 rounded-xl glass-card border border-slate-800 hover:border-indigo-500/50 hover:bg-indigo-950/20 font-bold text-sm text-slate-300 transition duration-200 focus:outline-none";
+            }
+        }
+
+        // Tabs Switching Logic
+        function switchTab(tab) {
+            activeTab = tab;
+            const promptTabBtn = document.getElementById('tab-prompt');
+            const playgroundTabBtn = document.getElementById('tab-playground');
+            
+            const promptPanel = document.getElementById('prompt-panel');
+            const playgroundPanel = document.getElementById('playground-panel');
+            
+            if (tab === 'prompt') {
+                promptTabBtn.className = "text-sm font-bold border-b-2 border-indigo-500 pb-2 px-1 text-white flex items-center gap-2 focus:outline-none";
+                playgroundTabBtn.className = "text-sm font-semibold text-slate-400 hover:text-white pb-2 px-1 flex items-center gap-2 focus:outline-none";
+                
+                promptPanel.classList.remove('hidden');
+                playgroundPanel.classList.add('hidden');
+            } else {
+                playgroundTabBtn.className = "text-sm font-bold border-b-2 border-indigo-500 pb-2 px-1 text-white flex items-center gap-2 focus:outline-none";
+                promptTabBtn.className = "text-sm font-semibold text-slate-400 hover:text-white pb-2 px-1 flex items-center gap-2 focus:outline-none";
+                
+                playgroundPanel.classList.remove('hidden');
+                promptPanel.classList.add('hidden');
+                
+                // Add animated dynamic sparkle
+                const pgIcon = document.getElementById('playground-icon');
+                pgIcon.className = "fa-solid fa-sparkles text-indigo-400 animate-pulse";
+                setTimeout(() => {
+                    pgIcon.className = "fa-solid fa-microchip text-indigo-400";
+                }, 1500);
+            }
+        }
+
+        // Dynamic Text Generator Engine
+        function buildFullPrompt(topic, paragraphs, format) {
+            const cleanTopic = topic.trim() || "[Tuliskan Topik Anda di Sini]";
+            let result = promptTemplateBase;
+            
+            let outputInstruction = "";
+            if (format === 'html') {
+                outputInstruction = `OUTPUT:
+Artikel lengkap dalam format HTML bersih. Berikan langsung tag-tag HTML dari <article> sampai </article> tanpa pembungkus blok kode markdown \`\`\`html.`;
+            } else {
+                outputInstruction = `OUTPUT:
+Artikel lengkap dalam format Markdown murni yang bersih (contoh: H1 menggunakan '#', H2 menggunakan '##', bullet point menggunakan '-', daftar tabel menggunakan format tabel markdown, dll.). Jangan gunakan tag atau sintaksis HTML sama sekali. Tulis draf langsung dalam format teks Markdown.`;
+            }
+            
+            result = result.replace("[DYNAMICS_OUTPUT]", outputInstruction);
+            result = result.replace("[ISI TOPIK]", cleanTopic);
+            result = result.replace("[paragraf]", paragraphs);
+            return result;
+        }
+
+        function updateGenerator() {
+            const topicInput = document.getElementById('topic-input');
+            const charCounter = document.getElementById('char-counter');
+            const promptOutput = document.getElementById('prompt-output');
+            
+            const activeCard = document.getElementById('prompt-card-active');
+            const emptyCard = document.getElementById('prompt-card-empty');
+            
+            const text = topicInput.value.trim();
+            charCounter.innerText = `${topicInput.value.length} karakter`;
+            
+            if (text.length === 0) {
+                activeCard.classList.add('hidden');
+                emptyCard.classList.remove('hidden');
+            } else {
+                activeCard.classList.remove('hidden');
+                emptyCard.classList.add('hidden');
+                
+                const finalPrompt = buildFullPrompt(text, currentParagraphs, outputFormat);
+                promptOutput.innerText = finalPrompt;
+            }
+        }
+
+        // Copy Clipboard Handler
+        function copyPromptToClipboard() {
+            const topicInput = document.getElementById('topic-input').value.trim();
+            const finalPrompt = buildFullPrompt(topicInput, currentParagraphs, outputFormat);
+            
+            const textarea = document.createElement('textarea');
+            textarea.value = finalPrompt;
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast("Prompt SEO disalin ke clipboard!");
+            } catch (err) {
+                showToast("Gagal menyalin, silakan lakukan manual.", "error");
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function copySourceCode() {
+            const textarea = document.createElement('textarea');
+            textarea.value = lastGeneratedArticle;
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast(`Kode ${outputFormat.toUpperCase()} Artikel berhasil disalin!`);
+            } catch (err) {
+                showToast("Gagal menyalin kode.", "error");
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // API Mode Switch (Visual/Code)
+        function togglePreviewMode(mode) {
+            previewMode = mode;
+            const btnVisual = document.getElementById('btn-preview-visual');
+            const btnSource = document.getElementById('btn-preview-source');
+            const previewVisual = document.getElementById('preview-visual');
+            const previewSource = document.getElementById('preview-source');
+            
+            if (mode === 'visual') {
+                btnVisual.className = "px-3 py-1 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] font-bold focus:outline-none";
+                btnSource.className = "px-3 py-1 rounded-md bg-slate-950 text-slate-400 border border-slate-800 text-[10px] font-bold focus:outline-none";
+                
+                previewVisual.classList.remove('hidden');
+                previewSource.classList.add('hidden');
+            } else {
+                btnSource.className = "px-3 py-1 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold focus:outline-none";
+                btnVisual.className = "px-3 py-1 rounded-md bg-slate-950 text-slate-400 border border-slate-800 text-[10px] font-bold focus:outline-none";
+                
+                previewSource.classList.remove('hidden');
+                previewVisual.classList.add('hidden');
+            }
+        }
+
+        // Live Article Generation using Gemini Engine
+        async function generateArticleWithAI() {
+            const topicVal = document.getElementById('topic-input').value.trim();
+            if (!topicVal) {
+                showToast("Mohon isi topik artikel terlebih dahulu!", "error");
+                document.getElementById('topic-input').focus();
+                return;
+            }
+
+            const promptToSubmit = buildFullPrompt(topicVal, currentParagraphs, outputFormat);
+            const apiBtn = document.getElementById('ai-generate-btn');
+            const loadingSec = document.getElementById('ai-loading');
+            const resultWrapper = document.getElementById('ai-result-wrapper');
+            const groundingInfo = document.getElementById('grounding-info');
+            
+            // Update UI State
+            apiBtn.disabled = true;
+            apiBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Menghubungkan AI...`;
+            loadingSec.classList.remove('hidden');
+            resultWrapper.classList.add('hidden');
+            groundingInfo.classList.add('hidden');
+
+            // API key resolution: User Input > Environment Default
+            const userInputKey = document.getElementById('api-key-input').value.trim();
+            const activeApiKey = userInputKey || defaultApiKey;
+
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${activeApiKey}`;
+            const payload = {
+                contents: [{
+                    parts: [{ text: promptToSubmit }]
+                }],
+                // Enable Google Search grounding dynamically for accurate, non-hallucinated citations in AI overview!
+                tools: [{ "google_search": {} }]
+            };
+
+            try {
+                const responseData = await fetchWithRetry(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const rawText = responseData.candidates?.[0]?.content?.parts?.[0]?.text;
+                
+                if (!rawText) {
+                    throw new Error("Respon tidak memiliki format konten teks yang valid.");
+                }
+
+                // Clean the output
+                let cleanResult = rawText.trim();
+                
+                // If AI wrapped markdown or HTML in codeblocks, strip them
+                if (cleanResult.startsWith('```html')) {
+                    cleanResult = cleanResult.substring(7);
+                } else if (cleanResult.startsWith('```markdown')) {
+                    cleanResult = cleanResult.substring(11);
+                } else if (cleanResult.startsWith('```')) {
+                    cleanResult = cleanResult.substring(3);
+                }
+
+                if (cleanResult.endsWith('```')) {
+                    cleanResult = cleanResult.substring(0, cleanResult.length - 3);
+                }
+                cleanResult = cleanResult.trim();
+
+                lastGeneratedArticle = cleanResult;
+
+                // Load to Preview Blocks based on outputFormat
+                if (outputFormat === 'html') {
+                    document.getElementById('preview-visual').innerHTML = cleanResult;
+                } else {
+                    // Parse markdown to HTML visual using marked.js
+                    document.getElementById('preview-visual').innerHTML = marked.parse(cleanResult);
+                }
+                
+                document.getElementById('source-code-output').innerText = cleanResult;
+
+                // Grounding Info Parser (if present)
+                const groundings = responseData.candidates?.[0]?.groundingMetadata?.groundingAttributions;
+                const groundingLinks = document.getElementById('grounding-links');
+                
+                if (groundings && groundings.length > 0) {
+                    groundingLinks.innerHTML = "";
+                    groundings.forEach(item => {
+                        if (item.web?.uri) {
+                            const link = document.createElement('a');
+                            link.href = item.web.uri;
+                            link.target = "_blank";
+                            link.className = "inline-flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-lg bg-slate-900 border border-slate-800 hover:border-indigo-500 text-slate-300 hover:text-white transition";
+                            link.innerHTML = `<i class="fa-solid fa-link text-indigo-400 text-[10px]"></i> ${item.web.title || 'Sumber Eksternal'}`;
+                            groundingLinks.appendChild(link);
+                        }
+                    });
+                    groundingInfo.classList.remove('hidden');
+                }
+
+                // Smooth Reveal
+                loadingSec.classList.add('hidden');
+                resultWrapper.classList.remove('hidden');
+                showToast(`Artikel ${outputFormat.toUpperCase()} berhasil dibuat!`);
+
+            } catch (err) {
+                console.error(err);
+                loadingSec.classList.add('hidden');
+                showToast("Ups! Gagal memproses artikel. Silakan cek Kunci API Anda atau coba sesaat lagi.", "error");
+            } finally {
+                apiBtn.disabled = false;
+                apiBtn.innerHTML = `<i class="fa-solid fa-sparkles"></i> Buat Artikel Sekarang`;
+            }
+        }
+
+        // Exponential backoff fetcher helper
+        async function fetchWithRetry(url, options, maxRetries = 5) {
+            let delay = 1000;
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) return await response.json();
+                } catch (e) {
+                    if (i === maxRetries - 1) throw e;
+                }
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay *= 2;
+            }
+            throw new Error("Gagal terhubung dengan backend AI.");
+        }
+    </script>
+</body>
+</html>
