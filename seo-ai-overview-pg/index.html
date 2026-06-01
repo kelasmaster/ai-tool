@@ -101,9 +101,9 @@
                     </h2>
 
                     <!-- GitHub Token / API Key Config -->
-                    <div class="space-y-2 p-4 bg-slate-950/60 rounded-xl border border-slate-900">
+                    <div class="space-y-2 p-4 bg-slate-950/60 rounded-xl border border-slate-900" id="api-key-container">
                         <label for="api-key-input" class="block text-xs font-semibold text-slate-300 flex justify-between">
-                            <span>Gemini API Key (Opsional)</span>
+                            <span>Gemini API Key</span>
                             <span class="text-[10px] text-indigo-400 font-medium">Disimpan di Browser</span>
                         </label>
                         <div class="relative">
@@ -543,6 +543,15 @@ Sebanyak [paragraf] paragraf`;
             }, 3000);
         }
 
+        // Custom validation border flash to capture user attention
+        function highlightApiKeyField() {
+            const container = document.getElementById('api-key-container');
+            container.classList.add('ring-2', 'ring-rose-500', 'border-rose-500');
+            setTimeout(() => {
+                container.classList.remove('ring-2', 'ring-rose-500', 'border-rose-500');
+            }, 2500);
+        }
+
         function toggleGuidelines() {
             const preview = document.getElementById('guidelines-preview');
             const chevron = document.getElementById('guidelines-chevron');
@@ -729,6 +738,21 @@ Artikel lengkap dalam format Markdown murni yang bersih (contoh: H1 menggunakan 
 
         // Live Article Generation using Gemini Engine
         async function generateArticleWithAI() {
+            // API key resolution: User Input > Environment Default
+            const userInputKey = document.getElementById('api-key-input').value.trim();
+            const activeApiKey = userInputKey || defaultApiKey;
+
+            // API Key Validation Check (NEW & ROBUST)
+            if (!activeApiKey) {
+                showToast("Gagal memproses! Mohon masukkan API Key Gemini Anda terlebih dahulu pada panel kiri.", "error");
+                
+                // Focus and visual enhancement to API Field
+                document.getElementById('api-key-input').focus();
+                document.getElementById('api-key-container').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                highlightApiKeyField();
+                return;
+            }
+
             const topicVal = document.getElementById('topic-input').value.trim();
             if (!topicVal) {
                 showToast("Mohon isi topik artikel terlebih dahulu!", "error");
@@ -748,10 +772,6 @@ Artikel lengkap dalam format Markdown murni yang bersih (contoh: H1 menggunakan 
             loadingSec.classList.remove('hidden');
             resultWrapper.classList.add('hidden');
             groundingInfo.classList.add('hidden');
-
-            // API key resolution: User Input > Environment Default
-            const userInputKey = document.getElementById('api-key-input').value.trim();
-            const activeApiKey = userInputKey || defaultApiKey;
 
             const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${activeApiKey}`;
             const payload = {
@@ -831,7 +851,7 @@ Artikel lengkap dalam format Markdown murni yang bersih (contoh: H1 menggunakan 
             } catch (err) {
                 console.error(err);
                 loadingSec.classList.add('hidden');
-                showToast("Ups! Gagal memproses artikel. Silakan cek Kunci API Anda atau coba sesaat lagi.", "error");
+                showToast("Ups! Gagal memproses artikel. Silakan cek kembali Kunci API Anda atau coba sesaat lagi.", "error");
             } finally {
                 apiBtn.disabled = false;
                 apiBtn.innerHTML = `<i class="fa-solid fa-sparkles"></i> Buat Artikel Sekarang`;
